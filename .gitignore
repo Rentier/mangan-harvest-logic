@@ -11,3 +11,8 @@
 *.lai
 *.la
 *.a
+
+fast_harvest.egg-info/
+fharvest.egg-info/
+venv/
+
