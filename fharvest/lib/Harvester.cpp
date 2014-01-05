@@ -27,11 +27,10 @@ using std::vector;
  */
 
 Harvester::Harvester(int t, int n, Point g) {
-	mission_time = t;
 	number_of_robots = n;
-	goal = g;
-	steps = mission_time + 1;
-	data = new Point[number_of_robots * steps];
+	steps = t;
+	goal = g;	
+	data = new Point[steps * number_of_robots];
 }
 
 Harvester::~Harvester() {
@@ -45,7 +44,7 @@ Harvester::~Harvester() {
  */
 
 int Harvester::index(int t, int n) {
-	return t*number_of_robots + n;
+	return t * number_of_robots + n;
 }
 
 int Harvester::taxicab_distance(Point u, Point v) {
@@ -106,6 +105,29 @@ void Harvester::run() {
  * ###
  */
 
+void Harvester::load(Array3D<int> array) {
+	int x, y;
+	for(int t = 0; t < steps; t++ ) {
+		for(int n = 0; n < number_of_robots; n++) {
+			x = array.get(t,n,0);
+			y = array.get(t,n,1);
+			data[index(t,n)].x = x;
+			data[index(t,n)].y = y;
+		}
+	}
+}
+
+void Harvester::extract(Array3D<int> *array) {
+	Point p;
+	for(int t = 0; t < steps; t++ ) {
+		for(int n = 0; n < number_of_robots; n++) {
+			p = data[index(t,n)];
+			array->set(t,n,0,p.x);
+			array->set(t,n,1,p.y);
+		}
+	}
+}
+
 void Harvester::read_points(string filename) {
 	string line;
 	ifstream input;
@@ -119,7 +141,6 @@ void Harvester::read_points(string filename) {
 		if(input >> x >> y) {
 			data[index(0,n)].x = x;
 			data[index(0,n)].y = y;
-			//cout << x << " " << y << endl;
 		} else {
 			cout << "Your file is bad, and you should feel bad!";
 			return;
@@ -148,10 +169,8 @@ void Harvester::print_harvest() {
 			data[index(t,n)].dump();
 		}
 		cout << endl;
-
 	}
 	cout << endl;
-
 }
 
 

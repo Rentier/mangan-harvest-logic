@@ -20,8 +20,13 @@ LANGUAGE = "c++"
 
 ext = Extension(
 					SRC_DIR + ".logic",
-					[SRC_DIR + "/lib/Point.cpp",
-					"fharvest/logic.pyx"],
+					[
+						"fharvest/logic.pyx",
+						SRC_DIR + "/lib/Point.cpp",
+						SRC_DIR + "/lib/Harvester.cpp",
+						SRC_DIR + "/lib/fast_harvest.cpp",
+						SRC_DIR + "/lib/Array3D.cpp",
+					],
 					language="c++",
 					include_dirs=[					
 						SRC_DIR,						

@@ -6,14 +6,23 @@
  */
 
 #include <iostream>
+#include <cstdio>
 
-#include "Point.h"
+#include "fast_harvest.h"
 #include "Harvester.h"
+#include "Array3D.h"
 
 using std::cout;
 using std::endl;
 
-void start_harvest(int robots[], int mission_time, int number_of_robots, Point goal) {
-	cout << "I twerk" << endl;
-	//Harvester h = Harvester(mission_time, number_of_robots, goal);
+void start_harvest(int *data, int x, int y, int steps, int number_of_robots) {
+	cout << "C++ called from Python" << endl;
+	Point goal(x,y);
+
+	Array3D<int> arr(steps, number_of_robots, 2, data);	
+
+	Harvester h(steps, number_of_robots, goal);
+	h.load(arr);
+	h.run();
+	h.extract(&arr);
 }

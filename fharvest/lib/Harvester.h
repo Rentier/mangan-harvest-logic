@@ -2,7 +2,7 @@
  * Harvester.h
  *
  *  Created on: Jan 2, 2014
- *      Author: jan-christoph
+ *      Author: Jan-Christoph Klie
  */
 
 #ifndef HARVESTER_H_
@@ -11,6 +11,7 @@
 #include <string>
 
 #include "Point.h"
+#include "Array3D.h"
 
 using std::string;
 
@@ -33,7 +34,9 @@ private:
 
 public:
 	void run(void);
-	void print_column(int t);
+	void load(Array3D<int>);
+	void extract(Array3D<int> *);
+	void print_column(int);
 	void print_finished(void);
 	void print_harvest(void);
 
