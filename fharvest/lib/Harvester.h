@@ -9,39 +9,42 @@
 #define HARVESTER_H_
 
 #include <string>
+#include <inttypes.h>
 
 #include "Point.h"
 #include "Array3D.h"
 
+
+
 using std::string;
 
-const int MAX_DISTANCE = 200;
+const int32_t MAX_DISTANCE = 200;
 
 class Harvester {
 
 private:
 	Point goal;
-	int number_of_robots;
-	int steps;
+	int32_t number_of_robots;
+	int32_t steps;
 	Point *data;
 
-	inline int index(int, int);
-	inline int taxicab_distance(Point, Point);
-	inline bool in_range(Point, int);
-	inline bool legal_move(Point, int, int);
-	void random_agent(int, int, int);
+	inline int32_t index(int32_t, int32_t);
+	inline int32_t taxicab_distance(Point, Point);
+	inline bool in_range(Point, int32_t);
+	inline bool legal_move(Point, int32_t, int32_t);
+	void random_agent(int32_t, int32_t, int32_t);
 
 public:
 	void run(void);
-	void load(Array3D<int>);
-	void extract(Array3D<int> *);
-	void print_column(int);
+	void load(Array3D<int32_t>);
+	void extract(Array3D<int32_t> *);
+	void print_column(int32_t);
 	void print_finished(void);
 	void print_harvest(void);
 
 	void read_points(string);
 
-	Harvester(int t, int n, Point);
+	Harvester(int32_t t, int32_t n, Point);
 	virtual ~Harvester();
 
 };

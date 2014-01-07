@@ -13,7 +13,7 @@ Point::Point() {
 	x = y = 0;
 }
 
-Point::Point(int a, int b) {
+Point::Point(int32_t a, int32_t b) {
 	x = a;
 	y = b;
 }

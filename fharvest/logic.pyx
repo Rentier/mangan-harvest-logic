@@ -3,10 +3,13 @@ import cython
 import numpy as np
 cimport numpy as np
 
-cdef extern from "fast_harvest.h":
-	void start_harvest(int * data , int x, int y, int t, int n)
+cdef extern from "inttypes.h":
+	ctypedef int int32_t  
 
-def harvest(np.ndarray[int, ndim=3, mode="c"] data not None, 
+cdef extern from "fast_harvest.h":
+	void start_harvest(int32_t * data , int32_t x, int32_t y, int32_t t, int32_t n)
+
+def harvest(np.ndarray[np.int32_t, ndim=3, mode="c"] data not None, 
 	        int goal_x, 
 	        int goal_y, 
 	        int steps, 

@@ -8,6 +8,8 @@
 #ifndef FAST_HARVEST_H_
 #define FAST_HARVEST_H_
 
-void start_harvest(int * , int , int , int, int);
+#include <inttypes.h>
+
+void start_harvest(int32_t * , int32_t , int32_t , int32_t, int32_t);
 
 #endif /* FAST_HARVEST_H_ */
