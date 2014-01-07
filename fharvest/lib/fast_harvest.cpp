@@ -17,6 +17,7 @@ using std::endl;
 
 void start_harvest(int *data, int x, int y, int steps, int number_of_robots) {
 	cout << "C++ called from Python" << endl;
+	cout << "For real!" << endl;
 	Point goal(x,y);
 
 	Array3D<int> arr(steps, number_of_robots, 2, data);	
