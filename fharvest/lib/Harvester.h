@@ -22,7 +22,6 @@ class Harvester {
 private:
 	Point goal;
 	int number_of_robots;
-	int mission_time;
 	int steps;
 	Point *data;
 

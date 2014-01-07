@@ -3,7 +3,7 @@ from Cython.Distutils import build_ext
 import numpy as np
 
 NAME = "fharvest"
-VERSION = "0.1"
+VERSION = "0.1.1"
 DESCR = "Small module for simulating robots on the pacific seafloor. Lots faster than doing it python."
 URL = "https://github.com/Rentier/harvest-logic"
 REQUIRES = ['numpy', 'cython']
@@ -33,7 +33,9 @@ ext = Extension(
 						SRC_DIR + "/lib",
 						np.get_include(),
 					],
-					libraries=[],					
+					libraries=[],
+					extra_compile_args=["-m32", "-O3"],
+					extra_link_args=[]
 				)
 
 
