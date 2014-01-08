@@ -8,20 +8,18 @@
 #ifndef POINT_H_
 #define POINT_H_
 
- #include <inttypes.h>
-
 class Point {
 private:
 
 public:
 	Point();
-	Point(int32_t, int32_t);
+	Point(int, int);
 	virtual ~Point();
 
 	void dump();
 
-	int32_t x;
-	int32_t y;
+	int x;
+	int y;
 };
 
 #endif /* POINT_H_ */
