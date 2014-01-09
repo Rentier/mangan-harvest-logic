@@ -13,13 +13,17 @@ private:
 
 public:
 	Point();
+	Point(const Point&);
 	Point(int, int);
 	virtual ~Point();
 
-	void dump();
-
 	int x;
 	int y;
+
+	void dump();
+	bool operator ==(const Point) const;
+	bool operator <(const Point) const;
+
 };
 
 #endif /* POINT_H_ */

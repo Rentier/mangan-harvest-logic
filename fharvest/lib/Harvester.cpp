@@ -11,8 +11,10 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <cmath>
 
-#include <stdlib.h> // abs
+#include <cstdlib> // abs
+
 
 using std::cout;
 using std::endl;
@@ -26,11 +28,26 @@ using std::vector;
  * t=3
  */
 
-Harvester::Harvester(int t, int n, Point g) {
+
+Harvester::Harvester(Agent a, int t, int n, Point g) {
 	number_of_robots = n;
 	steps = t;
 	goal = g;	
+
+	traveled = 0;
+	collected_cells = new set<Point>();
 	data = new Point[steps * number_of_robots];
+
+	switch (a) {
+	case HEURISTIC:
+		agent = &Harvester::heuristic_agent;
+		cout << "Heuristic agent " << endl;
+		break;
+	case RANDOM:
+	default:
+		agent = &Harvester::random_agent;
+		cout << "Random agent " << endl;
+	}
 }
 
 Harvester::~Harvester() {
@@ -43,6 +60,13 @@ Harvester::~Harvester() {
  * ###
  */
 
+/*!
+ * @function 	Harvester::index
+ * @abstract	Maps 2D coords to 1D index for accessing data buffer
+ * @param		t	X coord
+ * @param		n	Y coord
+ * @return		1D index
+ */
 int Harvester::index(int t, int n) {
 	return t * number_of_robots + n;
 }
@@ -51,18 +75,60 @@ int Harvester::taxicab_distance(Point u, Point v) {
 	return abs(u.x - v.x) + abs(u.y - v.y);
 }
 
+/*! @function 	Harvester::in_euclidean_range
+ *  @abstract	Computes the eucldiean distance between two points
+ *  @discussion I pray for the FSQRT assembly instruction, as alternative to
+ *  			to comparing with the squared distance
+ */
+double Harvester::euclidean_distance(Point u, Point v) {
+	int dx = u.x - v.x;
+	int dy = u.y - v.y;
+	return sqrt( dx*dx +dy*dy );
+}
+
+/*!
+ * @function 	Harvester::in_range
+ * @abstract 	Compute whether point is in range of at least one other
+ * @discussion	A point is considered in range when it has a distance of
+ * 				equal or less MAX_DISTANCE units
+ * 				Does not exclude comparing with itself if in data[t]
+ * @param		p 			Point to check for
+ * @param		t			Current point in time
+ * @return 		True if in range else False
+ */
 bool Harvester::in_range(Point p, int t) {
+	Point v;
 	for(int n = 0; n < number_of_robots; n++) {
-		if( taxicab_distance(p, data[index(t, n)]) <= MAX_DISTANCE - 2)
+		v = data[index(t, n)];
+		if(euclidean_distance(p, v) <= MAX_DISTANCE)
 			return true;
 	}
 	return false;
 }
 
+/*!
+ * @function 	Harvester::legal_move
+ * @abstract 	Compute whether a move is legal
+ * @discussion	A move is legal if the goal can be still reached in time
+ * 				and there is at least one robot in range
+ * 				Does not exclude comparing with itself if in data[t]
+ * @param		p 			Point to check for legality
+ * @param		t			Current point in time
+ * @param		timeleft 	Time until mission is over
+ * @return 		True if move is legal else False
+ */
 bool Harvester::legal_move(Point p, int t, int timeleft) {
 	return taxicab_distance(p, goal) < timeleft && in_range(p, t);
 }
 
+/*!
+ * @function	Harvester::random_agent
+ * @abstract	Compute the state of the nth robot in t-1 stepping to time t
+ * @discussion	Based on randomness
+ * @param		t 			Current point in time
+ * @param		n			Number of the robot
+ * @param		timeleft 	Time until mission is over
+ */
 void Harvester::random_agent(int t, int n, int timeleft) {
 	Point p = data[index(t-1,n)];
 
@@ -73,30 +139,61 @@ void Harvester::random_agent(int t, int n, int timeleft) {
 	Point bottom(p.x, p.y - 1);
 	Point top(p.x, p.y + 1);
 
-	if( legal_move(left, t-1, timeleft )) neighbours.push_back(left);
-	if( legal_move(right, t-1, timeleft )) neighbours.push_back(right);
-	if( legal_move(bottom, t-1, timeleft )) neighbours.push_back(bottom);
-	if( legal_move(top, t-1, timeleft )) neighbours.push_back(top);
+	if( legal_move(left, t, timeleft )) neighbours.push_back(left);
+	if( legal_move(right, t, timeleft )) neighbours.push_back(right);
+	if( legal_move(bottom, t, timeleft )) neighbours.push_back(bottom);
+	if( legal_move(top, t, timeleft )) neighbours.push_back(top);
+
+	Point move = p;
 
 	if(!neighbours.empty()) {
 		int randomIndex = rand() % neighbours.size();
-		Point j = neighbours[randomIndex];
-		data[index(t,n)].x = j.x;
-		data[index(t,n)].y = j.y;
-	} else {
-		data[index(t,n)].x = p.x;
-		data[index(t,n)].y = p.y;
+		move = neighbours[randomIndex];
+		traveled++;
 	}
+
+	data[index(t,n)].x = move.x;
+	data[index(t,n)].y = move.y;
+
+	collected_cells->insert(Point(move));
 }
 
+/*!
+ * @function	Harvester::heuristic_agent
+ * @abstract	Compute the state of the nth robot for time t
+ * @discussion	Based on a smart heuristic
+ * @param		t 			Current point in time
+ * @param		n			Number of the robot
+ * @param		timeleft 	Time until mission is over
+ */
+void Harvester::heuristic_agent(int t, int n, int timeleft) {
+	random_agent(t,n,timeleft);
+}
+
+/*!
+ * @function	Harvester::run
+ * @abstract	Update loop
+ * @discussion	Loop updating the robots. Please remark that
+ * 				the agent updates one robot after the other.
+ * 				The agent looks at the current state of the board,
+ * 				and moves one piece while keeping the constraints in mind.
+ */
 void Harvester::run() {
 	int timeleft;
 	for(int t = 1; t < steps; t++ ) {
 		timeleft = steps - t;
 		for(int n = 0; n < number_of_robots; n++) {
-			random_agent(t, n, timeleft);
+			(this->*agent)(t, n, timeleft);
 		}
 	}
+}
+
+int Harvester::get_traveled() {
+	return traveled;
+}
+
+double Harvester::get_collected() {
+	return collected_cells->size();
 }
 
 /*
@@ -109,8 +206,8 @@ void Harvester::load(Array3D<int> array) {
 	int x, y;
 	for(int t = 0; t < steps; t++ ) {
 		for(int n = 0; n < number_of_robots; n++) {
-			x = array.get(t,n,0);
-			y = array.get(t,n,1);
+			x = array.get(0,n,0);
+			y = array.get(0,n,1);
 			data[index(t,n)].x = x;
 			data[index(t,n)].y = y;
 		}
@@ -159,7 +256,6 @@ void Harvester::print_finished() {
 	for (int n = 0; n < number_of_robots; n++) {
 		data[index(steps-1,n)].dump();
 		cout << endl;
-
 	}
 }
 
@@ -172,8 +268,3 @@ void Harvester::print_harvest() {
 	}
 	cout << endl;
 }
-
-
-
-
-

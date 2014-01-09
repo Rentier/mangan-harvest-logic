@@ -14,6 +14,7 @@
 #include "Point.h"
 
 #include "Harvester.h"
+#include "Agent.h"
 #include "Array3D.h"
 
 using namespace std;
@@ -25,7 +26,7 @@ int main() {
 	string path;
 	bool print = true;
 
-	int choice = 0x100;
+	int choice = 10;
 
 	if(choice == 2) {
 		mission_time = 8;
@@ -54,31 +55,31 @@ int main() {
 		goal.y = 6711;
 		path = "robots_100.txt";
 		print = false;
-	} else if (choice == 0x100) {
-		mission_time = 2 * 1141;
-		number_of_robots = 100;
-		goal.x = 5821;
-		goal.y = 6711;
-		path = "robots_100_debug.txt";
-		print = false;
 	}
 
 	int steps = mission_time + 1;
 
-	Harvester h(steps, number_of_robots, goal);
+	Harvester h(HEURISTIC, steps, number_of_robots, goal);
 	h.read_points("fixtures/" + path);
 	h.run();
-
 
 	int *buffer = new int[steps * number_of_robots * 2];
 	Array3D<int> arr(steps, number_of_robots, 2, buffer);
 
 	h.extract(&arr);
 
-	if(print) h.print_harvest();
-	else h.print_finished();
+	cout << "Final positions: " << endl;
+	h.print_harvest();
+	cout << "Goal: ";
+	goal.dump();
+	cout << endl;
+	cout << "Steps:  " << steps << endl;
+	cout << "Collected: " << h.get_collected() << endl;
+	cout << "Traveled: " << h.get_traveled() << endl;
 
-
+	cout << "Max traveled: " << number_of_robots * steps << endl;
+	cout << "Max collected: " << "Magic formula" << endl;
+	cout << "Percentage: " << "Insert here" << endl;
 
 	return 0;
 }
