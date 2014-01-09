@@ -7,51 +7,37 @@
 
 #include "Harvester.h"
 
-#include <cstdio>
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <cmath>
-
-#include <cstdlib> // abs
-
-
-using std::cout;
-using std::endl;
-using std::ifstream;
-using std::vector;
-
 /*     n=0 n=1 n=2
  * t=0
  * t=1
  * t=2
  * t=3
  */
-
-
-Harvester::Harvester(Agent a, int t, int n, Point g) {
-	number_of_robots = n;
-	steps = t;
+Harvester::Harvester(Array3D<int> * arr, Agent a, Point g) {
+	steps = arr->x();
+	number_of_robots = arr->y();
 	goal = g;	
 
 	traveled = 0;
 	collected_cells = new set<Point>();
-	data = new Point[steps * number_of_robots];
+	robots = new Point[number_of_robots];
+	data = arr;
 
 	switch (a) {
-	case HEURISTIC:
-		agent = &Harvester::heuristic_agent;
-		cout << "Heuristic agent " << endl;
-		break;
-	case RANDOM:
-	default:
-		agent = &Harvester::random_agent;
-		cout << "Random agent " << endl;
+		case HEURISTIC:
+			agent = &Harvester::heuristic_agent;
+			cout << "Heuristic agent " << endl;
+			break;
+		case RANDOM:
+		default:
+			agent = &Harvester::random_agent;
+			cout << "Random agent " << endl;
 	}
 }
 
 Harvester::~Harvester() {
-	delete[] data;
+	delete[] robots;
+	delete collected_cells;
 }
 
 /*
@@ -59,17 +45,6 @@ Harvester::~Harvester() {
  * # Private
  * ###
  */
-
-/*!
- * @function 	Harvester::index
- * @abstract	Maps 2D coords to 1D index for accessing data buffer
- * @param		t	X coord
- * @param		n	Y coord
- * @return		1D index
- */
-int Harvester::index(int t, int n) {
-	return t * number_of_robots + n;
-}
 
 int Harvester::taxicab_distance(Point u, Point v) {
 	return abs(u.x - v.x) + abs(u.y - v.y);
@@ -93,13 +68,12 @@ double Harvester::euclidean_distance(Point u, Point v) {
  * 				equal or less MAX_DISTANCE units
  * 				Does not exclude comparing with itself if in data[t]
  * @param		p 			Point to check for
- * @param		t			Current point in time
  * @return 		True if in range else False
  */
-bool Harvester::in_range(Point p, int t) {
+bool Harvester::in_range(Point p) {
 	Point v;
 	for(int n = 0; n < number_of_robots; n++) {
-		v = data[index(t, n)];
+		v = robots[n];
 		if(euclidean_distance(p, v) <= MAX_DISTANCE)
 			return true;
 	}
@@ -117,8 +91,12 @@ bool Harvester::in_range(Point p, int t) {
  * @param		timeleft 	Time until mission is over
  * @return 		True if move is legal else False
  */
-bool Harvester::legal_move(Point p, int t, int timeleft) {
-	return taxicab_distance(p, goal) < timeleft && in_range(p, t);
+bool Harvester::legal_move(Point p, int timeleft) {
+	return taxicab_distance(p, goal) < timeleft && in_range(p);
+}
+
+bool Harvester::is_harvested(Point p) {
+	return collected_cells->count(goal);
 }
 
 /*!
@@ -129,8 +107,8 @@ bool Harvester::legal_move(Point p, int t, int timeleft) {
  * @param		n			Number of the robot
  * @param		timeleft 	Time until mission is over
  */
-void Harvester::random_agent(int t, int n, int timeleft) {
-	Point p = data[index(t-1,n)];
+void Harvester::random_agent(int n, int timeleft) {
+	Point p = robots[n];
 
 	vector<Point> neighbours;
 
@@ -139,10 +117,10 @@ void Harvester::random_agent(int t, int n, int timeleft) {
 	Point bottom(p.x, p.y - 1);
 	Point top(p.x, p.y + 1);
 
-	if( legal_move(left, t, timeleft )) neighbours.push_back(left);
-	if( legal_move(right, t, timeleft )) neighbours.push_back(right);
-	if( legal_move(bottom, t, timeleft )) neighbours.push_back(bottom);
-	if( legal_move(top, t, timeleft )) neighbours.push_back(top);
+	if( legal_move(left, timeleft )) neighbours.push_back(left);
+	if( legal_move(right, timeleft )) neighbours.push_back(right);
+	if( legal_move(bottom, timeleft )) neighbours.push_back(bottom);
+	if( legal_move(top, timeleft )) neighbours.push_back(top);
 
 	Point move = p;
 
@@ -152,8 +130,8 @@ void Harvester::random_agent(int t, int n, int timeleft) {
 		traveled++;
 	}
 
-	data[index(t,n)].x = move.x;
-	data[index(t,n)].y = move.y;
+	robots[n].x = move.x;
+	robots[n].y = move.y;
 
 	collected_cells->insert(Point(move));
 }
@@ -166,8 +144,8 @@ void Harvester::random_agent(int t, int n, int timeleft) {
  * @param		n			Number of the robot
  * @param		timeleft 	Time until mission is over
  */
-void Harvester::heuristic_agent(int t, int n, int timeleft) {
-	random_agent(t,n,timeleft);
+void Harvester::heuristic_agent(int n, int timeleft) {
+	random_agent(n,timeleft);
 }
 
 /*!
@@ -183,7 +161,10 @@ void Harvester::run() {
 	for(int t = 1; t < steps; t++ ) {
 		timeleft = steps - t;
 		for(int n = 0; n < number_of_robots; n++) {
-			(this->*agent)(t, n, timeleft);
+			(this->*agent)(n, timeleft);
+			Point p = robots[n];
+			data->set(t,n,0, p.x);
+			data->set(t,n,1, p.y);
 		}
 	}
 }
@@ -204,24 +185,10 @@ double Harvester::get_collected() {
 
 void Harvester::load(Array3D<int> array) {
 	int x, y;
-	for(int t = 0; t < steps; t++ ) {
-		for(int n = 0; n < number_of_robots; n++) {
-			x = array.get(0,n,0);
-			y = array.get(0,n,1);
-			data[index(t,n)].x = x;
-			data[index(t,n)].y = y;
-		}
-	}
-}
-
-void Harvester::extract(Array3D<int> *array) {
-	Point p;
-	for(int t = 0; t < steps; t++ ) {
-		for(int n = 0; n < number_of_robots; n++) {
-			p = data[index(t,n)];
-			array->set(t,n,0,p.x);
-			array->set(t,n,1,p.y);
-		}
+	for (int n = 0; n < number_of_robots; n++) {
+		x = array.get(0, n, 0);
+		y = array.get(0, n, 1);
+		robots[n] = Point(x,y);
 	}
 }
 
@@ -235,9 +202,11 @@ void Harvester::read_points(string filename) {
 
 	int x, y;
 	for(int n = 0; n < number_of_robots; n++) {
-		if(input >> x >> y) {
-			data[index(0,n)].x = x;
-			data[index(0,n)].y = y;
+		if (input >> x >> y) {
+			robots[n].x = x;
+			robots[n].y = y;
+			data->set(0,n,0, x);
+			data->set(0,n,1, y);
 		} else {
 			cout << "Your file is bad, and you should feel bad!";
 			return;
@@ -245,16 +214,16 @@ void Harvester::read_points(string filename) {
 	}
 }
 
-void Harvester::print_column(int t) {
-	for (int n = 0; n < number_of_robots; n++) {
-		data[index(t,n)].dump();
-		cout << endl;
-	}
+void Harvester::print_robot(int t, int n) {
+	int x,y;
+	x = data->get(t,n,0);
+	y = data->get(t,n,1);
+	printf("(%d, %d) ", x,y);
 }
 
 void Harvester::print_finished() {
 	for (int n = 0; n < number_of_robots; n++) {
-		data[index(steps-1,n)].dump();
+		print_robot(0,n);
 		cout << endl;
 	}
 }
@@ -262,7 +231,7 @@ void Harvester::print_finished() {
 void Harvester::print_harvest() {
 	for (int n = 0; n < number_of_robots; n++) {
 		for (int t = 0; t < steps; t++) {
-			data[index(t,n)].dump();
+			print_robot(t,n);
 		}
 		cout << endl;
 	}

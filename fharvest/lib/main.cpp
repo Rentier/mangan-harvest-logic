@@ -59,14 +59,13 @@ int main() {
 
 	int steps = mission_time + 1;
 
-	Harvester h(HEURISTIC, steps, number_of_robots, goal);
-	h.read_points("fixtures/" + path);
-	h.run();
-
 	int *buffer = new int[steps * number_of_robots * 2];
-	Array3D<int> arr(steps, number_of_robots, 2, buffer);
+	Array3D<int> * arr = new Array3D<int>(steps, number_of_robots, 2, buffer);
+	Harvester h(arr, HEURISTIC, goal);
 
-	h.extract(&arr);
+	h.read_points("fixtures/" + path);
+	h.print_harvest();
+	h.run();
 
 	cout << "Final positions: " << endl;
 	h.print_harvest();
@@ -80,6 +79,9 @@ int main() {
 	cout << "Max traveled: " << number_of_robots * steps << endl;
 	cout << "Max collected: " << "Magic formula" << endl;
 	cout << "Percentage: " << "Insert here" << endl;
+
+	delete [] buffer;
+	delete  arr;
 
 	return 0;
 }

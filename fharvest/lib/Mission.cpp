@@ -27,12 +27,9 @@ void Mission::start(Agent agent, int *data, int x, int y, int steps, int number_
 	cout << "C++ called from Python" << endl;
 	Point goal(x,y);
 
-	Array3D<int> arr(steps, number_of_robots, 2, data);
-	h = new Harvester(agent, steps, number_of_robots, goal);
-
-	h->load(arr);
+	Array3D<int> * arr = new Array3D<int>(steps, number_of_robots, 2, data);
+	h = new Harvester(arr, agent, goal);
 	h->run();
-	h->extract(&arr);
 }
 
 int Mission::traveled() {
