@@ -165,7 +165,7 @@ void Harvester::heuristic_agent(int n, int timeleft) {
 		vector<Point> new_neighbours;
 
 		//choose unharvested move
-		for(int i = 0; i < neighbours.size(); i++) {
+		for(unsigned int i = 0; i < neighbours.size(); i++) {
 			if(!is_harvested(neighbours[i])) {
 				new_neighbours.push_back(neighbours[i]);
 			}
@@ -185,7 +185,7 @@ void Harvester::heuristic_agent(int n, int timeleft) {
 	robots[n].x = move.x;
 	robots[n].y = move.y;
 
-	collected_cells->insert(Point(move));
+	collected_cells->insert(move);
 }
 
 /*!
@@ -205,6 +205,7 @@ void Harvester::run() {
 			Point p = robots[n];
 			data->set(t,n,0, p.x);
 			data->set(t,n,1, p.y);
+
 		}
 	}
 }

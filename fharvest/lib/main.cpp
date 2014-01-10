@@ -10,6 +10,8 @@
 #include <vector>
 #include <string>
 #include <cstdio>
+#include <cstdlib>
+#include <ctime>
 #include <cassert>
 #include "Point.h"
 
@@ -20,13 +22,14 @@
 using namespace std;
 
 int main() {
+	srand( time( NULL ) );
 	int mission_time;
 	int number_of_robots;
 	Point goal;
 	string path;
 	bool print = true;
 
-	int choice = 10;
+	int choice = 100;
 
 	if(choice == 2) {
 		mission_time = 8;
@@ -64,11 +67,10 @@ int main() {
 	Harvester h(arr, HEURISTIC, goal);
 
 	h.read_points("fixtures/" + path);
-	h.print_harvest();
 	h.run();
 
 	cout << "Final positions: " << endl;
-	h.print_harvest();
+	if(print) h.print_harvest();
 	cout << "Goal: ";
 	goal.dump();
 	cout << endl;

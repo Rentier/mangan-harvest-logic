@@ -29,10 +29,10 @@ void Point::dump() {
 	printf("(%d, %d)\t", x,y);
 }
 
-bool Point::operator ==(const Point p) const {
-	return p.x == x && p.y == y;
-}
-
-bool Point::operator <(const Point p ) const {
-	return x < p.x;
+bool Point::operator <(const Point p) const {
+	if (x != p.x) {
+		return (x < p.x);
+	} else {
+		return (y < p.y);
+	}
 }

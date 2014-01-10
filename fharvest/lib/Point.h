@@ -21,7 +21,6 @@ public:
 	int y;
 
 	void dump();
-	bool operator ==(const Point) const;
 	bool operator <(const Point) const;
 
 };
