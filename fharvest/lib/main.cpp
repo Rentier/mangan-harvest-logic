@@ -75,11 +75,10 @@ int main() {
 	goal.dump();
 	cout << endl;
 	cout << "Steps:  " << steps << endl;
-	cout << "Collected: " << h.get_collected() << endl;
 	cout << "Traveled: " << h.get_traveled() << endl;
-
+	cout.precision(15);
+	cout << "Collected: " << h.get_collected() << endl;
 	cout << "Max traveled: " << number_of_robots * steps << endl;
-	cout << "Max collected: " << "Magic formula" << endl;
 	cout << "Percentage: " << h.get_collected() / (number_of_robots * steps) << endl;
 
 	delete [] buffer;

@@ -20,6 +20,10 @@ Harvester::Harvester(Array3D<int> * arr, Agent a, Point g) {
 
 	traveled = 0;
 	collected_cells = new set<Point>();
+	collected_edges_upper_left = new set<Point>();
+	collected_edges_upper_right = new set<Point>();
+	collected_edges_lower_left = new set<Point>();
+	collected_edges_lower_right = new set<Point>();
 	robots = new Point[number_of_robots];
 	data = arr;
 
@@ -38,6 +42,10 @@ Harvester::Harvester(Array3D<int> * arr, Agent a, Point g) {
 Harvester::~Harvester() {
 	delete[] robots;
 	delete collected_cells;
+	delete collected_edges_upper_left;
+	delete collected_edges_upper_right;
+	delete collected_edges_lower_left;
+	delete collected_edges_lower_right;
 }
 
 /*
@@ -96,7 +104,7 @@ bool Harvester::legal_move(Point p, int timeleft) {
 }
 
 bool Harvester::is_harvested(Point p) {
-	return collected_cells->count(p) >= 1;
+	return collected_cells->count(p);
 }
 
 /*!
@@ -130,10 +138,46 @@ void Harvester::random_agent(int n, int timeleft) {
 		traveled++;
 	}
 
+	update_collected(p, move);
+
 	robots[n].x = move.x;
 	robots[n].y = move.y;
+}
 
-	collected_cells->insert(Point(move));
+void Harvester::update_collected(Point start, Point end) {
+	collected_cells->insert(end);
+	Direction dir = get_movement_direction(start, end);
+
+	switch(dir) {
+		cout << dir;
+		case LEFT:
+			collected_edges_lower_left->insert(start);
+			collected_edges_upper_left->insert(start);
+			collected_edges_lower_right->insert(end);
+			collected_edges_upper_right->insert(end);
+			break;
+		case RIGHT:
+			collected_edges_lower_right->insert(start);
+			collected_edges_upper_right->insert(start);
+			collected_edges_lower_left->insert(end);
+			collected_edges_upper_left->insert(end);
+			break;
+		case UP:
+			collected_edges_upper_left->insert(start);
+			collected_edges_upper_right->insert(start);
+			collected_edges_lower_left->insert(end);
+			collected_edges_lower_right->insert(end);
+			break;
+		case DOWN:
+			collected_edges_lower_left->insert(start);
+			collected_edges_lower_right->insert(start);
+			collected_edges_upper_left->insert(end);
+			collected_edges_upper_right->insert(end);
+			break;
+		case NONE:
+		default:
+			break;
+	}
 }
 
 /*!
@@ -182,10 +226,10 @@ void Harvester::heuristic_agent(int n, int timeleft) {
 		traveled++;
 	}
 
+	update_collected(p, move);
+
 	robots[n].x = move.x;
 	robots[n].y = move.y;
-
-	collected_cells->insert(move);
 }
 
 /*!
@@ -215,7 +259,13 @@ int Harvester::get_traveled() {
 }
 
 double Harvester::get_collected() {
-	return collected_cells->size();
+	double collected = 0.0;
+	collected += collected_edges_lower_left->size() * EDGE_AREA;
+	collected += collected_edges_upper_left->size() * EDGE_AREA;
+	collected += collected_edges_lower_right->size() * EDGE_AREA;
+	collected += collected_edges_upper_right->size() * EDGE_AREA;
+	collected += collected_cells->size() * CIRCLE_AREA;
+	return collected;
 }
 
 /*
