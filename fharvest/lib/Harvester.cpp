@@ -96,7 +96,7 @@ bool Harvester::legal_move(Point p, int timeleft) {
 }
 
 bool Harvester::is_harvested(Point p) {
-	return collected_cells->count(goal);
+	return collected_cells->count(p) >= 1;
 }
 
 /*!
@@ -145,7 +145,47 @@ void Harvester::random_agent(int n, int timeleft) {
  * @param		timeleft 	Time until mission is over
  */
 void Harvester::heuristic_agent(int n, int timeleft) {
-	random_agent(n,timeleft);
+	Point p = robots[n];
+
+	vector<Point> neighbours;
+
+	Point left(p.x -1, p.y);
+	Point right(p.x +1, p.y);
+	Point bottom(p.x, p.y - 1);
+	Point top(p.x, p.y + 1);
+
+	if( legal_move(left, timeleft )) neighbours.push_back(left);
+	if( legal_move(right, timeleft )) neighbours.push_back(right);
+	if( legal_move(bottom, timeleft )) neighbours.push_back(bottom);
+	if( legal_move(top, timeleft )) neighbours.push_back(top);
+
+	Point move = p;
+
+	if(!neighbours.empty()) {
+		vector<Point> new_neighbours;
+
+		//choose unharvested move
+		for(int i = 0; i < neighbours.size(); i++) {
+			if(!is_harvested(neighbours[i])) {
+				new_neighbours.push_back(neighbours[i]);
+			}
+		}
+
+		if(!new_neighbours.empty()) {
+			neighbours = new_neighbours;
+		}
+	}
+
+	if(!neighbours.empty()) {
+		int randomIndex = rand() % neighbours.size();
+		move = neighbours[randomIndex];
+		traveled++;
+	}
+
+	robots[n].x = move.x;
+	robots[n].y = move.y;
+
+	collected_cells->insert(Point(move));
 }
 
 /*!

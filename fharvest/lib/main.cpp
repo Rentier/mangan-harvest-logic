@@ -78,7 +78,7 @@ int main() {
 
 	cout << "Max traveled: " << number_of_robots * steps << endl;
 	cout << "Max collected: " << "Magic formula" << endl;
-	cout << "Percentage: " << "Insert here" << endl;
+	cout << "Percentage: " << h.get_collected() / (number_of_robots * steps) << endl;
 
 	delete [] buffer;
 	delete  arr;
