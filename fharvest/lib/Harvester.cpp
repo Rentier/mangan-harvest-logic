@@ -208,16 +208,69 @@ void Harvester::heuristic_agent(int n, int timeleft) {
 	if(!neighbours.empty()) {
 		vector<Point> new_neighbours;
 
+
 		//choose unharvested move
 		for(unsigned int i = 0; i < neighbours.size(); i++) {
-			if(!is_harvested(neighbours[i])) {
+			if(!is_harvested(Point(neighbours[i]))) {
 				new_neighbours.push_back(neighbours[i]);
 			}
 		}
-
 		if(!new_neighbours.empty()) {
 			neighbours = new_neighbours;
 		}
+
+
+		//choose max density direction
+		new_neighbours.clear();
+		Point topleft;
+		Point lookout;
+		Point robot;
+		signed int score;
+		signed int maxscore = std::numeric_limits<int>::min();;
+		for(unsigned int nb = 0; nb < neighbours.size(); nb++) {
+			score = 0;
+			topleft.x = p.x + 2 * (Point(neighbours[nb]).x - p.x) - 2;
+			topleft.y = p.y + 2 * (Point(neighbours[nb]).y - p.y) - 2;
+
+			for(unsigned int i = 0; i < 5; i++) {
+				for(unsigned int j = 0; j < 5; j++) {
+					lookout.x = topleft.x + j;
+					lookout.y = topleft.y + i;
+
+					if(!is_harvested(lookout)) {
+						score++;
+					}
+				}
+			}
+
+			//potentially expensive computation (hashset for robots? how in c++?)
+			for(unsigned int i = 0; i < number_of_robots; i++) {
+				if(i == n) {
+					continue;
+				}
+
+				robot = robots[i];
+				if(topleft.x <= robot.x && topleft.y <= robot.y
+						&& topleft.x + 5 > robot.x && topleft.y + 5 > robot.y) {
+					//penalty if there is another robot in that direction
+					score -= 5;
+				}
+			}
+
+			if(score > maxscore) {
+				new_neighbours.clear();
+				new_neighbours.push_back(neighbours[nb]);
+				maxscore = score;
+			} else if(score == maxscore) {
+				new_neighbours.push_back(neighbours[nb]);
+			}
+		}
+
+		/*
+		if(!new_neighbours.empty()) {
+			neighbours = new_neighbours;
+		}
+		*/
 	}
 
 	if(!neighbours.empty()) {
