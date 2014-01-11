@@ -29,7 +29,7 @@ int main() {
 	string path;
 	bool print = true;
 
-	int choice = 100;
+	int choice = 10;
 
 	if(choice == 2) {
 		mission_time = 8;
@@ -61,6 +61,7 @@ int main() {
 	}
 
 	int steps = mission_time + 1;
+	//steps *= 2;
 
 	int *buffer = new int[steps * number_of_robots * 2];
 	Array3D<int> * arr = new Array3D<int>(steps, number_of_robots, 2, buffer);
@@ -77,6 +78,7 @@ int main() {
 	cout << "Steps:  " << steps << endl;
 	cout << "Traveled: " << h.get_traveled() << endl;
 	cout.precision(15);
+	cout << "Uniquely visited: " << h.get_visited() << endl;
 	cout << "Collected: " << h.get_collected() << endl;
 	cout << "Max traveled: " << number_of_robots * steps << endl;
 	cout << "Percentage: " << h.get_collected() / (number_of_robots * steps) << endl;

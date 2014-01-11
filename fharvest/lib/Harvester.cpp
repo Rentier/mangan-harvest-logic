@@ -6,6 +6,7 @@
  */
 
 #include "Harvester.h"
+#include <limits>
 
 /*     n=0 n=1 n=2
  * t=0
@@ -211,6 +212,7 @@ void Harvester::heuristic_agent(int n, int timeleft) {
 
 		//choose unharvested move
 		for(unsigned int i = 0; i < neighbours.size(); i++) {
+			//TODO: remove Point() in next line
 			if(!is_harvested(Point(neighbours[i]))) {
 				new_neighbours.push_back(neighbours[i]);
 			}
@@ -229,6 +231,7 @@ void Harvester::heuristic_agent(int n, int timeleft) {
 		signed int maxscore = std::numeric_limits<int>::min();;
 		for(unsigned int nb = 0; nb < neighbours.size(); nb++) {
 			score = 0;
+			//TODO: remove Point() in next lines
 			topleft.x = p.x + 2 * (Point(neighbours[nb]).x - p.x) - 2;
 			topleft.y = p.y + 2 * (Point(neighbours[nb]).y - p.y) - 2;
 
@@ -266,11 +269,11 @@ void Harvester::heuristic_agent(int n, int timeleft) {
 			}
 		}
 
-		/*
+
 		if(!new_neighbours.empty()) {
 			neighbours = new_neighbours;
 		}
-		*/
+
 	}
 
 	if(!neighbours.empty()) {
@@ -309,6 +312,10 @@ void Harvester::run() {
 
 int Harvester::get_traveled() {
 	return traveled;
+}
+
+int Harvester::get_visited() {
+	return collected_cells->size();
 }
 
 double Harvester::get_collected() {

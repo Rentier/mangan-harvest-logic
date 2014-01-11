@@ -71,6 +71,7 @@ public:
 	void extract(Array3D<int> *);
 
 	int get_traveled();
+	int get_visited();
 	double get_collected();
 
 	void print_robot(int, int);
