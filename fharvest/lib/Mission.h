@@ -8,8 +8,11 @@
 #ifndef MISSION_H_
 #define MISSION_H_
 
+#include <stdint.h>
+
 #include "Harvester.h"
 #include "Agent.h"
+
 
 class Mission {
 
@@ -20,7 +23,7 @@ public:
 	Mission();
 	virtual ~Mission();
 
-	void start(Agent, int * , int , int , int, int);
+	void start(string, int32_t * , int , int , int, int);
 	int traveled();
 	double collected();
 };

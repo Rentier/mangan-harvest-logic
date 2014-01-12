@@ -24,8 +24,9 @@ ext = Extension(
 						"fharvest/logic.pyx",
 						SRC_DIR + "/lib/Point.cpp",
 						SRC_DIR + "/lib/Harvester.cpp",
-						SRC_DIR + "/lib/fast_harvest.cpp",
 						SRC_DIR + "/lib/Array3D.cpp",
+						SRC_DIR + "/lib/Direction.cpp",
+						SRC_DIR + "/lib/Mission.cpp",
 					],
 					language="c++",
 					include_dirs=[					

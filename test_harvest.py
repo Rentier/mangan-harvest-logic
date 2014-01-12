@@ -17,6 +17,8 @@ data[0][1] = 3, 4
 data[1][0] = 5, 6
 data[1][1] = 7, 8
 
-fhl.harvest(data, GOAL_X, GOAL_Y, STEPS, ROBO_COUNT)
+traveled, collected = fhl.harvest(data, "random", GOAL_X, GOAL_Y, STEPS, ROBO_COUNT)
 print data
-
+print "Traveled: ", traveled
+print "Collected: ", collected
+  
