@@ -67,7 +67,7 @@ public:
 	virtual ~Harvester();
 
 	void run();
-	void load(Array3D<int>);
+	void load();
 	void extract(Array3D<int> *);
 
 	int get_traveled();

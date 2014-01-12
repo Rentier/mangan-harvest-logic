@@ -40,6 +40,12 @@ Harvester::Harvester(Array3D<int> * arr, Agent a, Point g) {
 			agent = &Harvester::random_agent;
 			cout << "Random agent " << endl;
 	}
+
+	// Vacuum initial cells
+	Point p;
+	for(int n = 0; n < number_of_robots; n++) {
+		collected_cells->insert(robots[n]);
+	}
 }
 
 Harvester::~Harvester() {
@@ -394,11 +400,11 @@ double Harvester::get_collected() {
  * ###
  */
 
-void Harvester::load(Array3D<int> array) {
+void Harvester::load() {
 	int x, y;
 	for (int n = 0; n < number_of_robots; n++) {
-		x = array.get(0, n, 0);
-		y = array.get(0, n, 1);
+		x = data->get(0, n, 0);
+		y = data->get(0, n, 1);
 		robots[n] = Point(x,y);
 	}
 }

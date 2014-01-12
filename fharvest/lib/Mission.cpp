@@ -42,6 +42,7 @@ void Mission::start(string agent, int32_t *data, int x, int y, int steps, int nu
 
 	Array3D<int> * arr = new Array3D<int>(steps, number_of_robots, 2, data);
 	h = new Harvester(arr, a, goal);
+	h->load();
 	h->run();
 }
 
