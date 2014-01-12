@@ -7,6 +7,8 @@
 
 #include "Harvester.h"
 #include <limits>
+#include <map>
+#include <algorithm>
 
 /*     n=0 n=1 n=2
  * t=0
@@ -223,59 +225,115 @@ void Harvester::heuristic_agent(int n, int timeleft) {
 
 
 		//choose max density direction
-		//CUBE_SIZE should be odd
-		int CUBE_SIZE = 7;
-		new_neighbours.clear();
-		Point topleft;
-		Point lookout;
-		Point robot;
-		signed int score;
-		signed int maxscore = std::numeric_limits<int>::min();;
-		for(unsigned int nb = 0; nb < neighbours.size(); nb++) {
-			score = 0;
-			//TODO: remove Point() in next lines
-			topleft.x = p.x + CUBE_SIZE / 2 * (Point(neighbours[nb]).x - p.x) - CUBE_SIZE / 2;
-			topleft.y = p.y + CUBE_SIZE / 2 * (Point(neighbours[nb]).y - p.y) - CUBE_SIZE / 2;
+		if(neighbours.size() > 1) {
+			//CUBE_SIZE should be odd
+			int CUBE_SIZE = 5;
+			new_neighbours.clear();
+			Point topleft;
+			Point lookout;
+			Point robot;
+			signed int score;
+			signed int maxscore = std::numeric_limits<int>::min();;
+			for(unsigned int nb = 0; nb < neighbours.size(); nb++) {
+				score = 0;
+				//TODO: remove Point() in next lines
+				topleft.x = p.x + CUBE_SIZE / 2 * (Point(neighbours[nb]).x - p.x) - CUBE_SIZE / 2;
+				topleft.y = p.y + CUBE_SIZE / 2 * (Point(neighbours[nb]).y - p.y) - CUBE_SIZE / 2;
 
-			for(unsigned int i = 0; i < CUBE_SIZE; i++) {
-				for(unsigned int j = 0; j < CUBE_SIZE; j++) {
-					lookout.x = topleft.x + j;
-					lookout.y = topleft.y + i;
+				for(unsigned int i = 0; i < CUBE_SIZE; i++) {
+					for(unsigned int j = 0; j < CUBE_SIZE; j++) {
+						lookout.x = topleft.x + j;
+						lookout.y = topleft.y + i;
 
-					if(!is_harvested(lookout)) {
-						score++;
+						if(!is_harvested(lookout)) {
+							score++;
+						}
 					}
+				}
+
+				//potentially expensive computation (hashset for robots? how in c++?)
+				for(unsigned int i = 0; i < number_of_robots; i++) {
+					if(i == n) {
+						continue;
+					}
+
+					robot = robots[i];
+					if(topleft.x <= robot.x && topleft.y <= robot.y
+							&& topleft.x + CUBE_SIZE > robot.x && topleft.y + CUBE_SIZE > robot.y) {
+						//penalty if there is another robot in that direction
+						score -= CUBE_SIZE;
+					}
+				}
+
+				if(score > maxscore) {
+					new_neighbours.clear();
+					new_neighbours.push_back(neighbours[nb]);
+					maxscore = score;
+				} else if(score == maxscore) {
+					new_neighbours.push_back(neighbours[nb]);
 				}
 			}
 
-			//potentially expensive computation (hashset for robots? how in c++?)
+
+			if(!new_neighbours.empty()) {
+				neighbours = new_neighbours;
+			}
+		}
+
+
+		//choose max distance to robots move
+		if(neighbours.size() > 1) {
+			std::map< int, vector<Point> > distances;
+			Point robot;
+			vector<int> keys;
+			vector<Point> closest_robots;
+
 			for(unsigned int i = 0; i < number_of_robots; i++) {
 				if(i == n) {
 					continue;
 				}
-
 				robot = robots[i];
-				if(topleft.x <= robot.x && topleft.y <= robot.y
-						&& topleft.x + CUBE_SIZE > robot.x && topleft.y + CUBE_SIZE > robot.y) {
-					//penalty if there is another robot in that direction
-					score -= CUBE_SIZE;
-				}
+
+				distances[taxicab_distance(p, robot)].push_back(robot);
 			}
 
-			if(score > maxscore) {
+			for(std::map< int,vector<Point> >::iterator d = distances.begin(); d != distances.end(); ++d) {
+			  keys.push_back(d->first);
+			}
+			sort(keys.begin(), keys.end());
+			for(unsigned int i = 0; i < keys.size(); i++) {
+				closest_robots.insert(closest_robots.end(), distances[keys[i]].begin(), distances[keys[i]].end());
+			}
+
+			vector<Point> neighbours_iterator = neighbours;
+			int distance;
+			int max_distance;
+			for(unsigned int r = 0; r < closest_robots.size(); r++) {
 				new_neighbours.clear();
-				new_neighbours.push_back(neighbours[nb]);
-				maxscore = score;
-			} else if(score == maxscore) {
-				new_neighbours.push_back(neighbours[nb]);
+				for(unsigned int nb = 0; nb < neighbours_iterator.size(); nb++) {
+					//TODO: remove Point() in next line
+					distance = taxicab_distance(Point(closest_robots[r]), Point(neighbours_iterator[nb]));
+					if(new_neighbours.empty()) {
+						new_neighbours.push_back(neighbours_iterator[nb]);
+						max_distance = distance;
+					} else if(distance > max_distance) {
+						new_neighbours.clear();
+						new_neighbours.push_back(neighbours_iterator[nb]);
+						max_distance = distance;
+					} else if(distance == max_distance) {
+						new_neighbours.push_back(neighbours_iterator[nb]);
+					}
+				}
+				if(new_neighbours.size() == 1) {
+					break;
+				}
+				neighbours_iterator = new_neighbours;
+			}
+
+			if(!new_neighbours.empty()) {
+				neighbours = new_neighbours;
 			}
 		}
-
-
-		if(!new_neighbours.empty()) {
-			neighbours = new_neighbours;
-		}
-
 	}
 
 	if(!neighbours.empty()) {
