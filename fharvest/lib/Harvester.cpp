@@ -223,6 +223,8 @@ void Harvester::heuristic_agent(int n, int timeleft) {
 
 
 		//choose max density direction
+		//CUBE_SIZE should be odd
+		int CUBE_SIZE = 7;
 		new_neighbours.clear();
 		Point topleft;
 		Point lookout;
@@ -232,11 +234,11 @@ void Harvester::heuristic_agent(int n, int timeleft) {
 		for(unsigned int nb = 0; nb < neighbours.size(); nb++) {
 			score = 0;
 			//TODO: remove Point() in next lines
-			topleft.x = p.x + 2 * (Point(neighbours[nb]).x - p.x) - 2;
-			topleft.y = p.y + 2 * (Point(neighbours[nb]).y - p.y) - 2;
+			topleft.x = p.x + CUBE_SIZE / 2 * (Point(neighbours[nb]).x - p.x) - CUBE_SIZE / 2;
+			topleft.y = p.y + CUBE_SIZE / 2 * (Point(neighbours[nb]).y - p.y) - CUBE_SIZE / 2;
 
-			for(unsigned int i = 0; i < 5; i++) {
-				for(unsigned int j = 0; j < 5; j++) {
+			for(unsigned int i = 0; i < CUBE_SIZE; i++) {
+				for(unsigned int j = 0; j < CUBE_SIZE; j++) {
 					lookout.x = topleft.x + j;
 					lookout.y = topleft.y + i;
 
@@ -254,9 +256,9 @@ void Harvester::heuristic_agent(int n, int timeleft) {
 
 				robot = robots[i];
 				if(topleft.x <= robot.x && topleft.y <= robot.y
-						&& topleft.x + 5 > robot.x && topleft.y + 5 > robot.y) {
+						&& topleft.x + CUBE_SIZE > robot.x && topleft.y + CUBE_SIZE > robot.y) {
 					//penalty if there is another robot in that direction
-					score -= 5;
+					score -= CUBE_SIZE;
 				}
 			}
 
