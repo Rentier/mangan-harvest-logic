@@ -29,7 +29,7 @@ int main() {
 	string path;
 	bool print = true;
 
-	int choice = 100;
+	int choice = 10;
 
 	if(choice == 2) {
 		mission_time = 8;

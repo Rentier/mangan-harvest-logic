@@ -19,7 +19,7 @@
 Harvester::Harvester(Array3D<int> * arr, Agent a, Point g) {
 	steps = arr->x();
 	number_of_robots = arr->y();
-	goal = g;	
+	goal = g;
 
 	traveled = 0;
 	collected_cells = new set<Point>();
@@ -31,19 +31,19 @@ Harvester::Harvester(Array3D<int> * arr, Agent a, Point g) {
 	data = arr;
 
 	switch (a) {
-		case HEURISTIC:
-			agent = &Harvester::heuristic_agent;
-			cout << "Heuristic agent " << endl;
-			break;
-		case RANDOM:
-		default:
-			agent = &Harvester::random_agent;
-			cout << "Random agent " << endl;
+	case HEURISTIC:
+		agent = &Harvester::heuristic_agent;
+		cout << "Heuristic agent " << endl;
+		break;
+	case RANDOM:
+	default:
+		agent = &Harvester::random_agent;
+		cout << "Random agent " << endl;
 	}
 
 	// Vacuum initial cells
 	Point p;
-	for(int n = 0; n < number_of_robots; n++) {
+	for (int n = 0; n < number_of_robots; n++) {
 		collected_cells->insert(robots[n]);
 	}
 }
@@ -75,7 +75,7 @@ int Harvester::taxicab_distance(Point u, Point v) {
 double Harvester::euclidean_distance(Point u, Point v) {
 	int dx = u.x - v.x;
 	int dy = u.y - v.y;
-	return sqrt( dx*dx +dy*dy );
+	return sqrt(dx * dx + dy * dy);
 }
 
 /*!
@@ -89,9 +89,9 @@ double Harvester::euclidean_distance(Point u, Point v) {
  */
 bool Harvester::in_range(Point p) {
 	Point v;
-	for(int n = 0; n < number_of_robots; n++) {
+	for (int n = 0; n < number_of_robots; n++) {
 		v = robots[n];
-		if(euclidean_distance(p, v) <= MAX_DISTANCE)
+		if (euclidean_distance(p, v) <= MAX_DISTANCE)
 			return true;
 	}
 	return false;
@@ -129,19 +129,23 @@ void Harvester::random_agent(int n, int timeleft) {
 
 	vector<Point> neighbours;
 
-	Point left(p.x -1, p.y);
-	Point right(p.x +1, p.y);
+	Point left(p.x - 1, p.y);
+	Point right(p.x + 1, p.y);
 	Point bottom(p.x, p.y - 1);
 	Point top(p.x, p.y + 1);
 
-	if( legal_move(left, timeleft )) neighbours.push_back(left);
-	if( legal_move(right, timeleft )) neighbours.push_back(right);
-	if( legal_move(bottom, timeleft )) neighbours.push_back(bottom);
-	if( legal_move(top, timeleft )) neighbours.push_back(top);
+	if (legal_move(left, timeleft))
+		neighbours.push_back(left);
+	if (legal_move(right, timeleft))
+		neighbours.push_back(right);
+	if (legal_move(bottom, timeleft))
+		neighbours.push_back(bottom);
+	if (legal_move(top, timeleft))
+		neighbours.push_back(top);
 
 	Point move = p;
 
-	if(!neighbours.empty()) {
+	if (!neighbours.empty()) {
 		int randomIndex = rand() % neighbours.size();
 		move = neighbours[randomIndex];
 		traveled++;
@@ -157,36 +161,55 @@ void Harvester::update_collected(Point start, Point end) {
 	collected_cells->insert(end);
 	Direction dir = get_movement_direction(start, end);
 
-	switch(dir) {
-		cout << dir;
-		case LEFT:
-			collected_edges_lower_left->insert(start);
-			collected_edges_upper_left->insert(start);
-			collected_edges_lower_right->insert(end);
-			collected_edges_upper_right->insert(end);
-			break;
-		case RIGHT:
-			collected_edges_lower_right->insert(start);
-			collected_edges_upper_right->insert(start);
-			collected_edges_lower_left->insert(end);
-			collected_edges_upper_left->insert(end);
-			break;
-		case UP:
-			collected_edges_upper_left->insert(start);
-			collected_edges_upper_right->insert(start);
-			collected_edges_lower_left->insert(end);
-			collected_edges_lower_right->insert(end);
-			break;
-		case DOWN:
-			collected_edges_lower_left->insert(start);
-			collected_edges_lower_right->insert(start);
-			collected_edges_upper_left->insert(end);
-			collected_edges_upper_right->insert(end);
-			break;
-		case NONE:
-		default:
-			break;
+	switch (dir) {
+	cout << dir;
+case LEFT:
+	collected_edges_lower_left->insert(start);
+	collected_edges_upper_left->insert(start);
+	collected_edges_lower_right->insert(end);
+	collected_edges_upper_right->insert(end);
+	break;
+case RIGHT:
+	collected_edges_lower_right->insert(start);
+	collected_edges_upper_right->insert(start);
+	collected_edges_lower_left->insert(end);
+	collected_edges_upper_left->insert(end);
+	break;
+case UP:
+	collected_edges_upper_left->insert(start);
+	collected_edges_upper_right->insert(start);
+	collected_edges_lower_left->insert(end);
+	collected_edges_lower_right->insert(end);
+	break;
+case DOWN:
+	collected_edges_lower_left->insert(start);
+	collected_edges_lower_right->insert(start);
+	collected_edges_upper_left->insert(end);
+	collected_edges_upper_right->insert(end);
+	break;
+case NONE:
+default:
+	break;
 	}
+}
+
+vector<Point> Harvester::get_valid_neighbours(Point p, int timeleft) {
+	vector<Point> neighbours;
+	Point left(p.x - 1, p.y);
+	Point right(p.x + 1, p.y);
+	Point bottom(p.x, p.y - 1);
+	Point top(p.x, p.y + 1);
+
+	if (legal_move(left, timeleft))
+		neighbours.push_back(left);
+	if (legal_move(right, timeleft))
+		neighbours.push_back(right);
+	if (legal_move(bottom, timeleft))
+		neighbours.push_back(bottom);
+	if (legal_move(top, timeleft))
+		neighbours.push_back(top);
+
+	return neighbours;
 }
 
 /*!
@@ -200,149 +223,40 @@ void Harvester::update_collected(Point start, Point end) {
 void Harvester::heuristic_agent(int n, int timeleft) {
 	Point p = robots[n];
 
-	vector<Point> neighbours;
-
-	Point left(p.x -1, p.y);
-	Point right(p.x +1, p.y);
-	Point bottom(p.x, p.y - 1);
-	Point top(p.x, p.y + 1);
-
-	if( legal_move(left, timeleft )) neighbours.push_back(left);
-	if( legal_move(right, timeleft )) neighbours.push_back(right);
-	if( legal_move(bottom, timeleft )) neighbours.push_back(bottom);
-	if( legal_move(top, timeleft )) neighbours.push_back(top);
+	vector<Point> neighbours = get_valid_neighbours(p, timeleft);
 
 	Point move = p;
 
-	if(!neighbours.empty()) {
+	if (!neighbours.empty()) {
 		vector<Point> new_neighbours;
 
-
 		//choose unharvested move
-		for(unsigned int i = 0; i < neighbours.size(); i++) {
-			//TODO: remove Point() in next line
-			if(!is_harvested(Point(neighbours[i]))) {
-				new_neighbours.push_back(neighbours[i]);
+		if (neighbours.size() > 1) {
+			new_neighbours = choose_unharvested_move(neighbours);
+			if (!new_neighbours.empty()) {
+				neighbours = new_neighbours;
 			}
 		}
-		if(!new_neighbours.empty()) {
-			neighbours = new_neighbours;
-		}
-
 
 		//choose max density direction
-		if(neighbours.size() > 1) {
-			//CUBE_SIZE should be odd
-			int CUBE_SIZE = 5;
-			new_neighbours.clear();
-			Point topleft;
-			Point lookout;
-			Point robot;
-			signed int score;
-			signed int maxscore = std::numeric_limits<int>::min();;
-			for(unsigned int nb = 0; nb < neighbours.size(); nb++) {
-				score = 0;
-				//TODO: remove Point() in next lines
-				topleft.x = p.x + CUBE_SIZE / 2 * (Point(neighbours[nb]).x - p.x) - CUBE_SIZE / 2;
-				topleft.y = p.y + CUBE_SIZE / 2 * (Point(neighbours[nb]).y - p.y) - CUBE_SIZE / 2;
-
-				for(unsigned int i = 0; i < CUBE_SIZE; i++) {
-					for(unsigned int j = 0; j < CUBE_SIZE; j++) {
-						lookout.x = topleft.x + j;
-						lookout.y = topleft.y + i;
-
-						if(!is_harvested(lookout)) {
-							score++;
-						}
-					}
-				}
-
-				//potentially expensive computation (hashset for robots? how in c++?)
-				for(unsigned int i = 0; i < number_of_robots; i++) {
-					if(i == n) {
-						continue;
-					}
-
-					robot = robots[i];
-					if(topleft.x <= robot.x && topleft.y <= robot.y
-							&& topleft.x + CUBE_SIZE > robot.x && topleft.y + CUBE_SIZE > robot.y) {
-						//penalty if there is another robot in that direction
-						score -= CUBE_SIZE;
-					}
-				}
-
-				if(score > maxscore) {
-					new_neighbours.clear();
-					new_neighbours.push_back(neighbours[nb]);
-					maxscore = score;
-				} else if(score == maxscore) {
-					new_neighbours.push_back(neighbours[nb]);
-				}
-			}
-
-
-			if(!new_neighbours.empty()) {
+		if (neighbours.size() > 1) {
+			new_neighbours = choose_max_density_move(p, n, neighbours);
+			if (!new_neighbours.empty()) {
 				neighbours = new_neighbours;
 			}
 		}
-
 
 		//choose max distance to robots move
-		if(neighbours.size() > 1) {
-			std::map< int, vector<Point> > distances;
-			Point robot;
-			vector<int> keys;
-			vector<Point> closest_robots;
-
-			for(unsigned int i = 0; i < number_of_robots; i++) {
-				if(i == n) {
-					continue;
-				}
-				robot = robots[i];
-
-				distances[taxicab_distance(p, robot)].push_back(robot);
-			}
-
-			for(std::map< int,vector<Point> >::iterator d = distances.begin(); d != distances.end(); ++d) {
-			  keys.push_back(d->first);
-			}
-			sort(keys.begin(), keys.end());
-			for(unsigned int i = 0; i < keys.size(); i++) {
-				closest_robots.insert(closest_robots.end(), distances[keys[i]].begin(), distances[keys[i]].end());
-			}
-
-			vector<Point> neighbours_iterator = neighbours;
-			int distance;
-			int max_distance;
-			for(unsigned int r = 0; r < closest_robots.size(); r++) {
-				new_neighbours.clear();
-				for(unsigned int nb = 0; nb < neighbours_iterator.size(); nb++) {
-					//TODO: remove Point() in next line
-					distance = taxicab_distance(Point(closest_robots[r]), Point(neighbours_iterator[nb]));
-					if(new_neighbours.empty()) {
-						new_neighbours.push_back(neighbours_iterator[nb]);
-						max_distance = distance;
-					} else if(distance > max_distance) {
-						new_neighbours.clear();
-						new_neighbours.push_back(neighbours_iterator[nb]);
-						max_distance = distance;
-					} else if(distance == max_distance) {
-						new_neighbours.push_back(neighbours_iterator[nb]);
-					}
-				}
-				if(new_neighbours.size() == 1) {
-					break;
-				}
-				neighbours_iterator = new_neighbours;
-			}
-
-			if(!new_neighbours.empty()) {
+		if (neighbours.size() > 1) {
+			new_neighbours = choose_max_distance_move(p, n, neighbours);
+			if (!new_neighbours.empty()) {
 				neighbours = new_neighbours;
 			}
 		}
+
 	}
 
-	if(!neighbours.empty()) {
+	if (!neighbours.empty()) {
 		int randomIndex = rand() % neighbours.size();
 		move = neighbours[randomIndex];
 		traveled++;
@@ -354,6 +268,131 @@ void Harvester::heuristic_agent(int n, int timeleft) {
 	robots[n].y = move.y;
 }
 
+vector<Point> Harvester::choose_unharvested_move(vector<Point> neighbours) {
+	vector<Point> new_neighbours;
+	for (unsigned int i = 0; i < neighbours.size(); i++) {
+		//TODO: remove Point() in next line
+		if (!is_harvested(Point(neighbours[i]))) {
+			new_neighbours.push_back(neighbours[i]);
+		}
+	}
+	return new_neighbours;
+}
+
+vector<Point> Harvester::choose_max_density_move(Point p, int n, vector<Point> neighbours) {
+	vector<Point> new_neighbours;
+	//CUBE_SIZE should be odd
+	int CUBE_SIZE = 5;
+	Point topleft;
+	Point lookout;
+	Point robot;
+	signed int score;
+	signed int maxscore = std::numeric_limits<int>::min();
+
+	for (unsigned int nb = 0; nb < neighbours.size(); nb++) {
+		score = 0;
+		//TODO: remove Point() in next lines
+		topleft.x = p.x + CUBE_SIZE / 2 * (Point(neighbours[nb]).x - p.x)
+				- CUBE_SIZE / 2;
+		topleft.y = p.y + CUBE_SIZE / 2 * (Point(neighbours[nb]).y - p.y)
+				- CUBE_SIZE / 2;
+
+		for (int i = 0; i < CUBE_SIZE; i++) {
+			for (int j = 0; j < CUBE_SIZE; j++) {
+				lookout.x = topleft.x + j;
+				lookout.y = topleft.y + i;
+
+				if (!is_harvested(lookout)) {
+					score++;
+				}
+			}
+		}
+
+		//potentially expensive computation (hashset for robots? how in c++?)
+		for (int i = 0; i < number_of_robots; i++) {
+			if (i == n) {
+				continue;
+			}
+
+			robot = robots[i];
+			if (topleft.x <= robot.x && topleft.y <= robot.y
+					&& topleft.x + CUBE_SIZE > robot.x
+					&& topleft.y + CUBE_SIZE > robot.y) {
+				//penalty if there is another robot in that direction
+				score -= CUBE_SIZE;
+			}
+		}
+
+		if (score > maxscore) {
+			new_neighbours.clear();
+			new_neighbours.push_back(neighbours[nb]);
+			maxscore = score;
+		} else if (score == maxscore) {
+			new_neighbours.push_back(neighbours[nb]);
+		}
+	}
+	return new_neighbours;
+}
+
+vector<Point> Harvester::choose_max_distance_move(Point p, int n, vector<Point> neighbours) {
+	vector<Point> new_neighbours;
+	if (neighbours.size() > 1) {
+		std::map<int, vector<Point> > distances;
+		Point robot;
+		vector<int> keys;
+		vector<Point> closest_robots;
+
+		for (int i = 0; i < number_of_robots; i++) {
+			if (i == n) {
+				continue;
+			}
+			robot = robots[i];
+
+			distances[taxicab_distance(p, robot)].push_back(robot);
+		}
+
+		for (std::map<int, vector<Point> >::iterator d = distances.begin();
+				d != distances.end(); ++d) {
+			keys.push_back(d->first);
+		}
+		sort(keys.begin(), keys.end());
+		for (unsigned int i = 0; i < keys.size(); i++) {
+			closest_robots.insert(closest_robots.end(),
+					distances[keys[i]].begin(), distances[keys[i]].end());
+		}
+
+		vector<Point> neighbours_iterator = neighbours;
+		int distance;
+		int max_distance = 0;
+		for (unsigned int r = 0; r < closest_robots.size(); r++) {
+			new_neighbours.clear();
+			for (unsigned int nb = 0; nb < neighbours_iterator.size(); nb++) {
+				//TODO: remove Point() in next line
+				distance = taxicab_distance(Point(closest_robots[r]),
+						Point(neighbours_iterator[nb]));
+				if (new_neighbours.empty()) {
+					new_neighbours.push_back(neighbours_iterator[nb]);
+					max_distance = distance;
+				} else if (distance > max_distance) {
+					new_neighbours.clear();
+					new_neighbours.push_back(neighbours_iterator[nb]);
+					max_distance = distance;
+				} else if (distance == max_distance) {
+					new_neighbours.push_back(neighbours_iterator[nb]);
+				}
+			}
+			if (new_neighbours.size() == 1) {
+				break;
+			}
+			neighbours_iterator = new_neighbours;
+		}
+
+		if (!new_neighbours.empty()) {
+			neighbours = new_neighbours;
+		}
+	}
+	return new_neighbours;
+}
 /*!
  * @function	Harvester::run
  * @abstract	Update loop
@@ -364,13 +403,13 @@ void Harvester::heuristic_agent(int n, int timeleft) {
  */
 void Harvester::run() {
 	int timeleft;
-	for(int t = 1; t < steps; t++ ) {
+	for (int t = 1; t < steps; t++) {
 		timeleft = steps - t;
-		for(int n = 0; n < number_of_robots; n++) {
+		for (int n = 0; n < number_of_robots; n++) {
 			(this->*agent)(n, timeleft);
 			Point p = robots[n];
-			data->set(t,n,0, p.x);
-			data->set(t,n,1, p.y);
+			data->set(t, n, 0, p.x);
+			data->set(t, n, 1, p.y);
 
 		}
 	}
@@ -405,7 +444,7 @@ void Harvester::load() {
 	for (int n = 0; n < number_of_robots; n++) {
 		x = data->get(0, n, 0);
 		y = data->get(0, n, 1);
-		robots[n] = Point(x,y);
+		robots[n] = Point(x, y);
 	}
 }
 
@@ -418,12 +457,12 @@ void Harvester::read_points(string filename) {
 	input >> number_of_robots;
 
 	int x, y;
-	for(int n = 0; n < number_of_robots; n++) {
+	for (int n = 0; n < number_of_robots; n++) {
 		if (input >> x >> y) {
 			robots[n].x = x;
 			robots[n].y = y;
-			data->set(0,n,0, x);
-			data->set(0,n,1, y);
+			data->set(0, n, 0, x);
+			data->set(0, n, 1, y);
 		} else {
 			cout << "Your file is bad, and you should feel bad!";
 			return;
@@ -432,15 +471,15 @@ void Harvester::read_points(string filename) {
 }
 
 void Harvester::print_robot(int t, int n) {
-	int x,y;
-	x = data->get(t,n,0);
-	y = data->get(t,n,1);
-	printf("(%d, %d) ", x,y);
+	int x, y;
+	x = data->get(t, n, 0);
+	y = data->get(t, n, 1);
+	printf("(%d, %d) ", x, y);
 }
 
 void Harvester::print_finished() {
 	for (int n = 0; n < number_of_robots; n++) {
-		print_robot(0,n);
+		print_robot(0, n);
 		cout << endl;
 	}
 }
@@ -448,7 +487,7 @@ void Harvester::print_finished() {
 void Harvester::print_harvest() {
 	for (int n = 0; n < number_of_robots; n++) {
 		for (int t = 0; t < steps; t++) {
-			print_robot(t,n);
+			print_robot(t, n);
 		}
 		cout << endl;
 	}

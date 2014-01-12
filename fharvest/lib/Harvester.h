@@ -57,10 +57,13 @@ private:
 	inline bool in_range(Point);
 	inline bool legal_move(Point, int);
 	inline bool is_harvested(Point p);
-	vector<Point> * get_valid_neighbours(Point, int);
+	vector<Point> get_valid_neighbours(Point, int);
 	void update_collected(Point, Point);
 	void random_agent(int, int);
 	void heuristic_agent(int, int);
+	vector<Point> choose_unharvested_move(vector<Point>);
+ 	vector<Point> choose_max_density_move(Point, int, vector<Point>);
+ 	vector<Point> choose_max_distance_move(Point, int, vector<Point>);
 
 public:
 	Harvester(Array3D<int> *, Agent, Point);
