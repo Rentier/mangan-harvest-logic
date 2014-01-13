@@ -16,6 +16,9 @@
 #include <set>
 #include <string>
 #include <cstdlib> // abs
+#include <limits>
+#include <map>
+#include <algorithm>
 
 #include "Point.h"
 #include "Array3D.h"
@@ -28,6 +31,7 @@ using std::cout;
 using std::endl;
 using std::ifstream;
 using std::vector;
+using std::remove_copy_if;
 
 const int MAX_DISTANCE = 200;
 const double EDGE_AREA = (4-M_PI) / 16.;

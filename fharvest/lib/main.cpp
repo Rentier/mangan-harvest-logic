@@ -28,8 +28,9 @@ int main() {
 	Point goal;
 	string path;
 	bool print = true;
+	bool doubleIt = false;
 
-	int choice = 10;
+	int choice = 100;
 
 	if(choice == 2) {
 		mission_time = 8;
@@ -52,7 +53,7 @@ int main() {
 	} else if (choice == 20) {
 
 	} else if (choice == 100) {
-		mission_time = 2 * 1141;
+		mission_time = 1141;
 		number_of_robots = 100;
 		goal.x = 5821;
 		goal.y = 6711;
@@ -61,7 +62,7 @@ int main() {
 	}
 
 	int steps = mission_time + 1;
-	//steps *= 2;
+	if(doubleIt) steps *= 2;
 
 	int *buffer = new int[steps * number_of_robots * 2];
 	Array3D<int> * arr = new Array3D<int>(steps, number_of_robots, 2, buffer);
@@ -72,6 +73,7 @@ int main() {
 
 	cout << "Final positions: " << endl;
 	if(print) h.print_harvest();
+	cout << "Robots: " << number_of_robots << endl;
 	cout << "Goal: ";
 	goal.dump();
 	cout << endl;
@@ -81,7 +83,9 @@ int main() {
 	cout << "Uniquely visited: " << h.get_visited() << endl;
 	cout << "Collected: " << h.get_collected() << endl;
 	cout << "Max traveled: " << number_of_robots * steps << endl;
-	cout << "Percentage: " << h.get_collected() / (number_of_robots * steps) << endl;
+	cout << "Percentage: " << 100 * h.get_collected() / (number_of_robots * steps) << endl;
+
+	if(doubleIt) cout << "Double TIme!!11" << endl;
 
 	delete [] buffer;
 	delete  arr;

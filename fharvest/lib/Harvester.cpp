@@ -6,9 +6,7 @@
  */
 
 #include "Harvester.h"
-#include <limits>
-#include <map>
-#include <algorithm>
+
 
 /*     n=0 n=1 n=2
  * t=0
@@ -127,21 +125,7 @@ bool Harvester::is_harvested(Point p) {
 void Harvester::random_agent(int n, int timeleft) {
 	Point p = robots[n];
 
-	vector<Point> neighbours;
-
-	Point left(p.x - 1, p.y);
-	Point right(p.x + 1, p.y);
-	Point bottom(p.x, p.y - 1);
-	Point top(p.x, p.y + 1);
-
-	if (legal_move(left, timeleft))
-		neighbours.push_back(left);
-	if (legal_move(right, timeleft))
-		neighbours.push_back(right);
-	if (legal_move(bottom, timeleft))
-		neighbours.push_back(bottom);
-	if (legal_move(top, timeleft))
-		neighbours.push_back(top);
+	vector<Point> neighbours = get_valid_neighbours(p, timeleft);
 
 	Point move = p;
 
@@ -282,7 +266,7 @@ vector<Point> Harvester::choose_unharvested_move(vector<Point> neighbours) {
 vector<Point> Harvester::choose_max_density_move(Point p, int n, vector<Point> neighbours) {
 	vector<Point> new_neighbours;
 	//CUBE_SIZE should be odd
-	int CUBE_SIZE = 5;
+	const int CUBE_SIZE = 5;
 	Point topleft;
 	Point lookout;
 	Point robot;
@@ -292,10 +276,8 @@ vector<Point> Harvester::choose_max_density_move(Point p, int n, vector<Point> n
 	for (unsigned int nb = 0; nb < neighbours.size(); nb++) {
 		score = 0;
 		//TODO: remove Point() in next lines
-		topleft.x = p.x + CUBE_SIZE / 2 * (Point(neighbours[nb]).x - p.x)
-				- CUBE_SIZE / 2;
-		topleft.y = p.y + CUBE_SIZE / 2 * (Point(neighbours[nb]).y - p.y)
-				- CUBE_SIZE / 2;
+		topleft.x = p.x + CUBE_SIZE / 2 * (Point(neighbours[nb]).x - p.x) - CUBE_SIZE / 2;
+		topleft.y = p.y + CUBE_SIZE / 2 * (Point(neighbours[nb]).y - p.y) - CUBE_SIZE / 2;
 
 		for (int i = 0; i < CUBE_SIZE; i++) {
 			for (int j = 0; j < CUBE_SIZE; j++) {
