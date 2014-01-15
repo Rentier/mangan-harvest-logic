@@ -28,9 +28,9 @@ int main() {
 	Point goal;
 	string path;
 	bool print = true;
-	bool doubleIt = false;
+	bool doubleIt = true;
 
-	int choice = 100;
+	int choice = 4;
 
 	if(choice == 2) {
 		mission_time = 8;
@@ -50,14 +50,18 @@ int main() {
 		goal.x = 1569;
 		goal.y = 4011;
 		path = "robots_010.txt";
-	} else if (choice == 20) {
-
+	} else if (choice == 50) {
+		mission_time = 384;
+		number_of_robots = 50;
+		goal.x = 118;
+		goal.y = 324;
+		path = "50_positions.txt";
 	} else if (choice == 100) {
-		mission_time = 1141;
+		mission_time = 992;
 		number_of_robots = 100;
-		goal.x = 5821;
-		goal.y = 6711;
-		path = "robots_100.txt";
+		goal.x = 233;
+		goal.y = 358;
+		path = "100_positions.txt";
 		print = false;
 	}
 

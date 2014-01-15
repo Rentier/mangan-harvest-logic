@@ -222,13 +222,13 @@ void Harvester::heuristic_agent(int n, int timeleft) {
 			}
 		}
 
-		//choose max density direction
-		if (neighbours.size() > 1) {
-			new_neighbours = choose_max_density_move(p, n, neighbours);
-			if (!new_neighbours.empty()) {
-				neighbours = new_neighbours;
-			}
-		}
+//		//choose max density direction
+//		if (neighbours.size() > 1) {
+//			new_neighbours = choose_max_density_move(p, n, neighbours);
+//			if (!new_neighbours.empty()) {
+//				neighbours = new_neighbours;
+//			}
+//		}
 
 		//choose max distance to robots move
 		if (neighbours.size() > 1) {
